@@ -2,10 +2,10 @@ function [ g ] = localhisteq(f, m, n )
     
 %“g = localhisteq(f, m, n)” performs local histogram equalization on input image f using a window size 𝑚 × 𝑛 to produce the processed image g. If m and n are omitted, they default to 3. If n is omitted, it defaults to m. Both must be odd. %
 
-if d == 1                              % there are no m and n defined
+if nargin == 1                              % there are no m and n defined
     m = 3; n = 3;
-elseif d == 2                          % If n is not defined but f and m are given,
-    if mod(m,2)~= 1 || mod(n,2)~=1          % check whether m and n both odd
+elseif nargin == 2                          % If n is not defined but f and m are given,
+    if mod(m,2)~= 1 || mod(n,2)~=1     % check whether m and n both odd
         n=m;
     end
 end
@@ -20,8 +20,11 @@ for i = (m+1)/2 + 1 : rows + (m+1)/2
   y= 0;
   for j = (n+1)/2 + 1 : columns + (n+1)/2
     y = y +1;
-    g = f(i:i+m-1, j: j+n-1);
-    new_g = histeq(g);
-    g(x,y)=new_g((m+1)/2, (n+1)/2);
+    extended_image = f(i:i+m-1, j: j+n-1);
+    no_of_pixels=numel(extended_image);
+    hist = imhist(extended_image,256)./no_of_pixels;
+    cdf = cumsum(hist);%compute CDF
+     
+    g(x,y)= extended_image((m+1)/2, (n+1)/2);
   end
 end
